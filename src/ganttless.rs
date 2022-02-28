@@ -137,7 +137,6 @@ pub fn ganttless(y: String) -> Result<ResponseBody, MyError> {
                     "{prefix} {beginning}{}{ending}",
                     " ".repeat(range - space_needed),
                 ));
-                result_simple = result_verbose.clone();
                 result_verbose.push('\n');
                 result_verbose.push_str(&format!("{prefix} {dots}"));
                 result_verbose.push('\n');
