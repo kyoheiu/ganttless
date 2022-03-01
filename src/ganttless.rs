@@ -1,6 +1,5 @@
 use super::data::*;
 use super::parse::*;
-use chrono::NaiveDate;
 use serde::Serialize;
 use thiserror::Error;
 
@@ -30,11 +29,11 @@ pub struct ResponseBody {
 
 pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
     let mut result_verbose = String::new();
-    let mut result_simple = String::new();
+    let mut result_simple;
 
     let mut title_vec = Vec::new();
-    let mut input_d_vec: Vec<(String, NaiveDate, NaiveDate)> = Vec::new();
-    let mut input_n_vec = Vec::new();
+    let mut input_d_vec: Vec<DayInput> = Vec::new();
+    let mut input_n_vec: Vec<NumberInput> = Vec::new();
     for data in de.clone().charts {
         title_vec.push(data.0.clone());
         match de.fmt {
@@ -43,16 +42,24 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
                 if starting_date > ending_date {
                     std::mem::swap(&mut starting_date, &mut ending_date);
                 }
-                input_d_vec.push((data.0, starting_date, ending_date));
-                input_d_vec.sort_by(|a, b| a.1.cmp(&b.1));
+                input_d_vec.push(DayInput {
+                    title: data.0,
+                    start: starting_date,
+                    finish: ending_date,
+                });
+                input_d_vec.sort_by(|a, b| a.start.cmp(&b.start));
             }
             Fmt::Number => {
                 let (mut starting_number, mut ending_number) = input_to_i(data.1)?;
                 if starting_number > ending_number {
                     std::mem::swap(&mut starting_number, &mut ending_number);
                 }
-                input_n_vec.push((data.0, starting_number, ending_number));
-                input_n_vec.sort_by(|a, b| a.1.cmp(&b.1));
+                input_n_vec.push(NumberInput {
+                    title: data.0,
+                    start: starting_number,
+                    finish: ending_number,
+                });
+                input_n_vec.sort_by(|a, b| a.start.cmp(&b.start));
             }
         }
     }
@@ -65,8 +72,8 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
     match de.fmt {
         Fmt::Day => {
             let iter = input_d_vec.iter();
-            let beginning = iter.clone().map(|i| i.1).min().unwrap();
-            let ending = iter.map(|i| i.2).max().unwrap();
+            let beginning = iter.clone().map(|i| i.start).min().unwrap();
+            let ending = iter.map(|i| i.finish).max().unwrap();
             let prefix = " ".repeat(title_max_len);
             let range: usize = (ending - beginning).num_days().try_into()?;
             let range = range + 1;
@@ -90,19 +97,19 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
             result_simple = result_verbose.clone();
 
             for e in input_d_vec {
-                let title_fmt = " ".repeat(title_max_len - e.0.len());
-                let spaces = (e.1 - beginning).num_days().try_into()?;
-                let pluses: usize = (e.2 - e.1).num_days().try_into()?;
+                let title_fmt = " ".repeat(title_max_len - e.title.len());
+                let spaces = (e.start - beginning).num_days().try_into()?;
+                let pluses: usize = (e.finish - e.start).num_days().try_into()?;
                 let pluses = pluses + 1;
                 let fills = format!("{}{}", " ".repeat(spaces), "+".repeat(pluses));
                 let sub: usize = pluses + 1;
-                let beginning_date = e.1.format("%m-%d").to_string();
-                let ending_date = e.2.format("%m-%d").to_string();
+                let beginning_date = e.start.format("%m-%d").to_string();
+                let ending_date = e.finish.format("%m-%d").to_string();
                 let occupied = beginning_date.len() + ending_date.len() + 4;
                 if sub > occupied {
                     result_verbose.push_str(&format!(
                         "{}{title_fmt}|{}{beginning_date} -> {}{ending_date}",
-                        e.0,
+                        e.title,
                         " ".repeat(spaces),
                         " ".repeat(sub - occupied - 1),
                     ));
@@ -112,7 +119,7 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
                 } else {
                     result_verbose.push_str(&format!(
                         "{}{title_fmt}|{}{beginning_date} -> {ending_date}",
-                        e.0,
+                        e.title,
                         " ".repeat(spaces),
                     ));
                     result_verbose.push('\n');
@@ -120,14 +127,14 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
                     result_verbose.push('\n');
                 }
 
-                result_simple.push_str(&format!("{}{title_fmt}|{fills}", e.0));
+                result_simple.push_str(&format!("{}{title_fmt}|{fills}", e.title));
                 result_simple.push('\n');
             }
         }
         Fmt::Number => {
             let iter = input_n_vec.iter();
-            let beginning = iter.clone().map(|i| i.1).min().unwrap();
-            let ending = iter.map(|i| i.2).max().unwrap();
+            let beginning = iter.clone().map(|i| i.start).min().unwrap();
+            let ending = iter.map(|i| i.finish).max().unwrap();
             let prefix = " ".repeat(title_max_len);
             let range: usize = (ending - beginning + 1).try_into()?;
             let dots = "-".repeat(range);
@@ -150,37 +157,37 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
             result_simple = result_verbose.clone();
 
             for e in input_n_vec {
-                let title_fmt = " ".repeat(title_max_len - e.0.len());
-                let e_begin: usize = (e.1 - beginning).try_into()?;
-                let e_end: usize = (e.2 - beginning).try_into()?;
+                let title_fmt = " ".repeat(title_max_len - e.title.len());
+                let e_begin: usize = (e.start - beginning).try_into()?;
+                let e_end: usize = (e.finish - beginning).try_into()?;
                 let sub: usize = e_end - e_begin + 1;
                 let fills = format!("{}{}", " ".repeat(e_begin), "+".repeat(sub),);
-                let occupied = e.1.to_string().len() + e.2.to_string().len() + 4;
+                let occupied = e.start.to_string().len() + e.finish.to_string().len() + 4;
                 if sub > occupied {
                     result_verbose.push_str(&format!(
                         "{}{title_fmt}|{}{} -> {}{}",
-                        e.0,
+                        e.title,
                         " ".repeat(e_begin),
-                        e.1,
+                        e.start,
                         " ".repeat(sub - occupied),
-                        e.2
+                        e.finish
                     ));
                     result_verbose.push_str(&format!("{}|{fills}", " ".repeat(title_max_len)));
                     result_verbose.push('\n');
                 } else {
                     result_verbose.push_str(&format!(
                         "{}{title_fmt}|{}{} -> {}",
-                        e.0,
+                        e.title,
                         " ".repeat(e_begin),
-                        e.1,
-                        e.2
+                        e.start,
+                        e.finish
                     ));
                     result_verbose.push('\n');
                     result_verbose.push_str(&format!("{}|{fills}", " ".repeat(title_max_len)));
                     result_verbose.push('\n');
                 }
 
-                result_simple.push_str(&format!("{}{title_fmt}|{fills}", e.0));
+                result_simple.push_str(&format!("{}{title_fmt}|{fills}", e.title));
                 result_simple.push('\n');
             }
         }

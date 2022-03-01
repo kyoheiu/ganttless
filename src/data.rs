@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use serde::Deserialize;
 use std::collections::HashMap;
 
@@ -17,4 +18,16 @@ pub enum Fmt {
 pub struct Chart {
     pub title: String,
     pub range: String,
+}
+
+pub struct DayInput {
+    pub title: String,
+    pub start: NaiveDate,
+    pub finish: NaiveDate,
+}
+
+pub struct NumberInput {
+    pub title: String,
+    pub start: i64,
+    pub finish: i64,
 }
