@@ -31,11 +31,9 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
     let mut result_verbose = String::new();
     let mut result_simple;
 
-    let mut title_vec = Vec::new();
     let mut input_d_vec: Vec<DayInput> = Vec::new();
     let mut input_n_vec: Vec<NumberInput> = Vec::new();
     for data in de.clone().charts {
-        title_vec.push(data.0.clone());
         match de.fmt {
             Fmt::Day => {
                 let (mut starting_date, mut ending_date) = input_to_date(data.1)?;
@@ -64,7 +62,10 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
         }
     }
 
-    let mut title_max_len = title_vec.iter().map(|title| title.len()).max().unwrap();
+    let mut title_max_len = match de.fmt {
+        Fmt::Day => input_d_vec.iter().map(|x| x.title.len()).max().unwrap(),
+        Fmt::Number => input_n_vec.iter().map(|x| x.title.len()).max().unwrap(),
+    };
     if title_max_len < 2 {
         title_max_len = 2;
     }

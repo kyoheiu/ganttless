@@ -7,15 +7,12 @@ use args::*;
 use clap::Parser;
 use data::*;
 use ganttless::{ganttless, MyError};
-use log::debug;
 use parse::input_to_tuple;
 
 fn main() -> Result<(), MyError> {
     let args = Args::parse();
     match args.input {
         Some(input) => {
-            println!("{:?}", input);
-            println!("{}", args.simple);
             let mut map = std::collections::HashMap::new();
             for input in input {
                 let input = input_to_tuple(input)?;
@@ -59,7 +56,8 @@ fn main() -> Result<(), MyError> {
                 }
             }
             None => {
-                println!("Invalid input");
+                let mut command = clap::Command::new("ganttless");
+                let _ = command.print_long_help();
             }
         },
     }
