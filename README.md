@@ -116,7 +116,7 @@ taskC-1|                        01-25 -> 02-03
 ```
 
 ### Input as Args
-While you can handle long chart with yaml, it's easy to give inputs as arguments when it gonna be simple.  
+yaml can handle long charts, but when it gonna be simple, you can give inputs as arguments easily.
 `gnt -d -i taskP=2022-1-5:2022-1-14 taskQ=2022-1-12:2022-2-1` produces this chart:
 ```
       2022-01-05        2022-02-01
@@ -127,3 +127,8 @@ taskQ|       01-12 ->        02-01
      |       +++++++++++++++++++++
 ```
 How do you like this? Hope you enjoy.
+
+
+## web app version
+Also made a web app version as a trial, so take a look.
+https://ganttless.app/
