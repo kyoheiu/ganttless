@@ -2,6 +2,8 @@ use clap::Parser;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
+#[clap(name = "gnt")]
+#[clap(bin_name = "gnt")]
 #[clap(author = "kyoheiu <kyoheiu@outlook.com>")]
 #[clap(version = "0.1.0")]
 #[clap(about = "less bloated gantt chart")]
