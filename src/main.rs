@@ -56,7 +56,7 @@ fn main() -> Result<(), MyError> {
                 }
             }
             None => {
-                let mut command = clap::Command::new("ganttless");
+                let mut command = clap::Command::new("gnt");
                 let _ = command.print_long_help();
             }
         },
