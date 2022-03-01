@@ -1,3 +1,4 @@
+use super::data::Fmt;
 use clap::Parser;
 
 /// Simple program to greet a person
@@ -9,4 +10,16 @@ pub struct Args {
     /// Show simple chart
     #[clap(short, long)]
     pub simple: bool,
+
+    /// Use day format
+    #[clap(short, long)]
+    pub day: bool,
+
+    /// Use number format
+    #[clap(short, long)]
+    pub number: bool,
+
+    /// input data. <title>:<range>
+    #[clap(short, long, takes_value(true), multiple_values(true))]
+    pub input: Option<Vec<String>>,
 }

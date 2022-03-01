@@ -1,4 +1,4 @@
 fmt: Number
 charts:
-  WWII: 1939->1945
-  WWI: 1914->1918
+  WWII: 1939:1945
+  WWI: 1914:1918

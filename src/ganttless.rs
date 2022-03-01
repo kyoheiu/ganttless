@@ -18,6 +18,8 @@ pub enum MyError {
     AnyHowError(#[from] anyhow::Error),
     #[error(transparent)]
     IOError(#[from] std::io::Error),
+    #[error{"Invalid input data"}]
+    InputError,
 }
 
 #[derive(Serialize, Debug)]
@@ -26,11 +28,9 @@ pub struct ResponseBody {
     pub simple: String,
 }
 
-pub fn ganttless(y: String) -> Result<ResponseBody, MyError> {
+pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
     let mut result_verbose = String::new();
     let mut result_simple = String::new();
-
-    let de: Input = serde_yaml::from_str(&y)?;
 
     let mut title_vec = Vec::new();
     let mut input_d_vec: Vec<(String, NaiveDate, NaiveDate)> = Vec::new();
