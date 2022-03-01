@@ -1,9 +1,8 @@
-use super::data::*;
 use super::ganttless::MyError;
 use chrono::NaiveDate;
 
 pub fn input_to_i(input: String) -> Result<(i64, i64), MyError> {
-    let split: Vec<&str> = input.split(":").collect();
+    let split: Vec<&str> = input.split(':').collect();
     let mut begin = split[0].trim().parse::<i64>()?;
     let mut end = split[1].trim().parse::<i64>()?;
     if end < begin {
@@ -13,7 +12,7 @@ pub fn input_to_i(input: String) -> Result<(i64, i64), MyError> {
 }
 
 pub fn input_to_date(input: String) -> Result<(NaiveDate, NaiveDate), MyError> {
-    let split: Vec<&str> = input.split(":").collect();
+    let split: Vec<&str> = input.split(':').collect();
     let mut begin = split[0].trim().parse::<NaiveDate>()?;
     let mut end = split[1].trim().parse::<NaiveDate>()?;
     if end < begin {

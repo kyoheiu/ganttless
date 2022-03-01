@@ -87,8 +87,7 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
                 result_verbose.push('\n');
             }
 
-            result_simple.push_str(&format!("{prefix} {dots}"));
-            result_simple.push('\n');
+            result_simple = result_verbose.clone();
 
             for e in input_d_vec {
                 let title_fmt = " ".repeat(title_max_len - e.0.len());
@@ -121,7 +120,8 @@ pub fn ganttless(de: Input) -> Result<ResponseBody, MyError> {
                     result_verbose.push('\n');
                 }
 
-                result_simple = result_verbose.clone();
+                result_simple.push_str(&format!("{}{title_fmt}|{fills}", e.0));
+                result_simple.push('\n');
             }
         }
         Fmt::Number => {

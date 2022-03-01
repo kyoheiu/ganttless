@@ -3,8 +3,6 @@ mod data;
 mod ganttless;
 mod parse;
 
-use std::{collections::HashMap, fmt::Debug};
-
 use args::*;
 use clap::Parser;
 use data::*;
@@ -14,10 +12,10 @@ use parse::input_to_tuple;
 
 fn main() -> Result<(), MyError> {
     let args = Args::parse();
-    debug!("{:?}", args);
     match args.input {
         Some(input) => {
             println!("{:?}", input);
+            println!("{}", args.simple);
             let mut map = std::collections::HashMap::new();
             for input in input {
                 let input = input_to_tuple(input)?;

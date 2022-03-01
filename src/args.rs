@@ -1,4 +1,3 @@
-use super::data::Fmt;
 use clap::Parser;
 
 /// Simple program to greet a person
